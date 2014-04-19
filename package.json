@@ -1,0 +1,31 @@
+{
+    "name":"eiw.js",
+    "version":"0.0.1",
+    "description":"JavaScript framework to create single page applications",
+    "dependencies":{
+        "grunt":"~0.4.1"
+    },
+    "devDependencies":{
+        "grunt-contrib-watch":"*",
+        "grunt-contrib-concat":"*",
+        "grunt-contrib-uglify":"*"
+    },
+    "scripts":{
+        "test":"grunt test",
+        "start":""
+    },
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/vincentdesmares/eiw.git"
+    },
+    "keywords":[
+        "eiw",
+        "javascript",
+        "framework",
+        "widget"
+    ],
+    "author":"vincent desmares vincent.desmares@gmail.com",
+    "license":"MIT",
+    "readmeFilename":"README.md",
+    "gitHead":"master"
+}
