@@ -4,7 +4,8 @@
   "description": "JavaScript framework to create single page applications",
   "dependencies": {
     "grunt": "~0.4.1",
-    "bower": "^1.3.2"
+    "bower": "^1.3.2",
+    "karma-jasmine": "^0.1.5"
   },
   "devDependencies": {
     "grunt-contrib-watch": "*",
