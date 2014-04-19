@@ -18,7 +18,14 @@ module.exports = function (grunt) {
         concat:{
             core:{
                 src:[
-                    'src/*/**/*.js'
+                    'src/main.js',
+                    'src/logger.js',
+                    'src/router.js',
+                    'src/template/*.js',
+                    'src/widget/*.js',
+                    'src/page/*.js',
+                    'src/application/*.js',
+                    'src/prefab/*.js'
                 ],
                 dest:'build/eiw.js'
             }

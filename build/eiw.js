@@ -1,550 +1,245 @@
-(function () {
-    'use strict';
+/**
+ * Created by cold on 2/15/14.
+ *
+ * EWI : Everything Is Widget (mostly)
+ *
+ * A javascript library for single page applications that focus on simplicity, customization and NO MORE
+ *
+ * Application
+ * An application is a group of page with a layout. Only one application can be instantiated by BROWSER dom document
+ * It's the only global object of the window
+ *
+ * Page
+ * A page is a group of widget with a layout. A page can be bound to the path of the URL
+ *
+ * Widget
+ * A widget is a simple feature with a layout. The widget can have states bound to the query string of the URL
+ *
+ *
+ *
+ * ######### Application workflow ############
+ *
+ * App
+ * # bootstrap
+ * # load
+ * # render
+ *   Pages
+ *   # load
+ *   # render
+ *     Widgets
+ *     # load
+ *     # render
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *  http://www.asciiflow.com/#Draw
+ */
 
-    var application;
+/**
+ * The Namespace of the EIW library
+ * @todo replace all those define by a tool that build the EIW
+ * @namespace
+ * @type {{Object}}
+ *
+ * var class = Eiw.CreateWidgetClass('city', {route:'/awdawd/'});
+ * widget.prototype.test = function() {};
+ *
+ * var widget = Eiw.InstantiateWidget('city');
+ *
+ * @property {Eiw.Application} Application
+ */
+Eiw = {
+    classes : {},
+    page : {},
+    template : {},
+    Widget : {
+        Plugin : {
+            Bootstrap : {
 
-    /**
-     * @class
-     * @classdesc The Application class
-     * @abstract
-     * @constructor
-     *
-     * @extends Eiw.Widget.Abstract
-     * @member {Eiw.logger} logger
-     * @member {Eiw.page.container} pages
-     * @member {Eiw.Widget.container} widgets
-     * @member {Eiw.router} router
-     */
-    application = function () {
-        /**
-         * @instance
-         * @type {Eiw.router}
-         */
-        this.router  = null;
-        this.widgets = null;
-        this.pages   = null;
-        this.logger  = null;
-        this.requestManager = null;
-    };
-
-    // Extend the Widget Prototype
-    $.extend(true, application.prototype, new Eiw.Widget.Abstract());
-
-    /**
-     * Initialize the application
-     *
-     */
-    application.prototype.bootstrap = function() {
-        this.application = this;
-
-        this.logger = new Eiw.logger();
-        this.logger.log('Application boostraping');
-
-        this.requestManager = new Eiw.Application.requestManager();
-        this.requestManager.bootstrap();
-
-        this.router = new Eiw.router(this);
-        this.router.bootstrap();
-
-        this.pages = new Eiw.page.container(this);
-
-        this.widgets = new Eiw.Widget.container(this);
-        Eiw.Widget.Abstract.prototype.bootstrap.call(this);
-        this.router.bindApplicationToUrl(this);
-        this.onPostBootstrap();
-    };
-
-    /**
-     *
-     * @param {Eiw.Application.request} request
-     * @param {function} callback
-     */
-    application.prototype.requestServer = function(request) {
-        this.requestManager.requestServer(request);
-    }
-
-    /**
-     * Start the application
-     */
-    application.prototype.start = function() {
-        this.bootstrap();
-        this.pages.bootstrap();
-        this.widgets.bootstrap();
-    };
-
-    /**
-     * @override
-     * @returns {string}
-     */
-    application.prototype.getNodeId = function() {
-        return '#' + this.getId() + '-app';
-    }
-
-    application.prototype.log = function(message) {
-        this.logger.log(message);
-    }
-
-    application.prototype.getRouter = function() {
-        return this.router;
-    }
-
-    application.prototype.getType = function() {
-        return Eiw.Widget.types.application;
-    }
-
-    /**
-     * This can be overloaded to do things after the bootstrap of the application
-     * @abstract
-     */
-    application.prototype.onPostBootstrap = function() {};
-    /**
-     * This can be overloaded to do things after the load of the application
-     * @abstract
-     */
-    application.prototype.onPostLoad = function() {};
-
-    Eiw.Application.Abstract = application;
-}());
-(function () {
-    'use strict';
-
-    var cache;
-
-    /**
-     * @class
-     * @classdesc The Application class
-     * @constructor
-     */
-    cache = function () {
-
-    };
-
-    /**
-     * Initialize the application
-     *
-     */
-    cache.prototype.bootstrap = function() {
-    };
-
-    /**
-     *
-     * @param {Eiw.Application.response} answer
-     * @returns {Eiw.Application.cache}
-     */
-    cache.prototype.store = function(answer) {
-        return this;
-    }
-
-    /**
-     * Test if a request is currently available in the cache
-     *
-     * @param {Eiw.Application.request} request
-     * @returns {boolean}
-     */
-    cache.prototype.test = function(request) {
-        return false;
-    }
-
-    cache.prototype.getRequestAnswer = function() {
-        return new Eiw.Application.response('test content');
-    }
-
-    Eiw.Application.cache = cache;
-}());
-(function () {
-    'use strict';
-
-    var promise;
-
-    /**
-     * @class
-     * @classdesc The Request class
-     * @constructor
-     */
-    promise = function () {
-        this.successCallback = null;
-        this.failCallback = null;
-    };
-
-    /**
-     * Call the success callback
-     */
-    promise.prototype.callSuccess = function() {
-        if(this.successCallback !== null) {
-            this.successCallback()
+            }
         }
-        return this;
-    }
+    },
+    Prefab : {
+        Widget : {
+            Bootstrap : {
 
-    /**
-     * Set the success callback, it will be called when the promise will have been set resolved
-     */
-    promise.prototype.success = function(callback) {
-        return this.successCallback = callback;
-    }
-
-    /**
-     * Call the fail callback
-     */
-    promise.prototype.callFail = function() {
-        if(this.failCallback !== null) {
-            this.failCallback()
+            }
         }
-        return this;
-    }
+    },
+    Application : {},
 
-    /**
-     * Set the fail callback, it will be called when the promise will have been set resolved
-     */
-    promise.prototype.fail = function(callback) {
-        return this.failCallback = callback;
-    }
+    CreateWidget : function(widgetId) {
+        this.classes[widgetId] = function () {
+            this.id          = 'city-map';
+            this.api         = '/frontoffice/city/json/id/1/';
+        };
 
-    Eiw.Application.Promise = promise;
-}());
+        $.extend(true, this.classes[widgetId].prototype, new Eiw.Widget.Abstract());
+
+        return this.classes[widgetId];
+    },
+
+    InstantiateWidget : function(widgetId) {
+        return new this.classes[widgetId]();
+    }
+};
+/**
+ * Created by cold on 2/15/14.
+ */
 (function () {
     'use strict';
 
-    var request;
+    var logger;
 
     /**
-     * @class
-     * @classdesc The Request class
+     * The Application class
+     *
      * @constructor
      */
-    request = function (url, success, fail) {
-        this.url = url;
-
-        this.response = null;
-
-        this.successCallback = null;
-        if(success !== undefined) {
-            this.successCallback = success;
-        }
-        this.failCallback    = null;
-        if(fail !== undefined) {
-            this.failCallback = fail;
-        }
+    logger = function () {
+        this.test = 1;
     };
 
-    /**
-     * Initialize the application
-     *
-     */
-    request.prototype.bootstrap = function() {
+    // Extend the Indicator Prototype
+    //$.extend(application.prototype, new Eiw.Widget.());
 
+    logger.prototype.bootstrap = function() {
     };
 
-    request.prototype.isCachable = function() {
-        return true;
-    };
-
-    request.prototype.getUrl = function() {
-        return this.url;
+    logger.prototype.log = function(message) {
+        console.log(message);
     }
 
-    request.prototype.getParameters = function() {
-        return {};
-    }
-
-    request.prototype.setAnswer = function(answer) {
-        this.response = answer;
-        return this;
-    }
-
-    request.prototype.getAnswer = function() {
-        if(this.response == null) {
-            throw 'No answer have be bound to this request';
-        }
-        return this.response;
-    }
-
-    /**
-     * Return the success callback of the request
-     * @returns {null|function}
-     */
-    request.prototype.getSuccessCallback = function() {
-        return this.successCallback;
-    }
-
-    request.prototype.getFailCallback = function() {
-        return this.failCallback;
-    }
-
-
-    Eiw.Application.request = request;
+    Eiw.logger = logger;
 }());
+/**
+ * Created by cold on 2/15/14.
+ */
 (function () {
     'use strict';
 
-    var requestManager;
+    var router;
 
     /**
-     * @class
-     * @classdesc The Application class
-     * @abstract
+     * The Application class
+     * For documentation about the URL : http://en.wikipedia.org/wiki/Uniform_resource_locator
+     *
+     * Definition of the URL parts
+     *     scheme://domain:port/path?query_string#fragment_id
+     * Matching
+     *     scheme://domain:port/page?widgets#widgets
      * @constructor
-     *
-     * @property {Eiw.Application.cache} cache
+     * @param application {Eiw.Application}
      */
-    requestManager = function () {
-        this.cache = null;
-    };
-
-    /**
-     * Initialize the application
-     *
-     */
-    requestManager.prototype.bootstrap = function() {
-        this.cache = new Eiw.Application.cache();
-    };
-
-    /**
-     *
-     * @param {Eiw.Application.request} request
-     */
-    requestManager.prototype.requestServer = function(request) {
-        var self = this;
-        if(this.cache.test(request)) {
-            var answer = this.cache.getRequestAnswer(request);
-            request.setAnswer(answer);
-            request.getSuccessCallback()(answer);
-        } else {
-            $.getJSON(request.getUrl(),
-                  request.getParameters(),
-                  function(answer) {
-                      var answer = new Eiw.Application.response(answer);
-                      request.setAnswer(answer);
-                      if(request.isCachable()) {
-                          self.cache.store(answer);
-                      }
-                      request.getSuccessCallback()(answer);
-                  },
-                  request.getFailCallback());
-        }
-    };
-
-    Eiw.Application.requestManager = requestManager;
-}());
-(function () {
-    'use strict';
-
-    var answer;
-
-    /**
-     * @class
-     * @classdesc The Application class
-     * @constructor
-     */
-    answer = function (content, request) {
-        this.content = content;
-        this.request = request;
-    };
-
-    /**
-     * Initialize the application
-     *
-     */
-    answer.prototype.bootstrap = function() {
-
-    };
-
-    answer.prototype.getContent = function() {
-        return this.content;
-    }
-
-    Eiw.Application.response = answer;
-}());
-(function () {
-    'use strict';
-
-    var page;
-
-    /**
-     * @class
-     * @classdesc The page class. The page is different from the widget by two things.
-     * @classdesc Only one page can be display at a time and the path of the URL is dedicated to the routing of pages
-     *
-     * @abstract
-     * @constructor
-     * @extends Eiw.Widget.Abstract
-     * @member {Eiw.Widget.container} widgets
-     */
-    page = function () {
-        this.route = '';
-        this.widgets = null;
-    };
-
-    // Extend the Widget Prototype
-    $.extend(true, page.prototype, new Eiw.Widget.Abstract());
-
-    /**
-     * Initialize the application
-     *
-     */
-    page.prototype.bootstrap = function() {
-        this.widgets = new Eiw.Widget.container(this.getApp());
-        Eiw.Widget.Abstract.prototype.bootstrap.call(this);
-    };
-
-    /**
-     * Only one page can be display at a time
-     * @returns {string}
-     */
-    page.prototype.getNodeId = function() {
-        return '#page-container';
-    };
-
-    page.prototype.isMatchingUrlPath = function() {
-        return true;
-    }
-
-    /**
-     * Return the route of the page
-     *
-     * @return {string}
-     */
-    page.prototype.getRoute = function() {
-        return this.route;
-    }
-
-    page.prototype.getType = function() {
-        return Eiw.Widget.types.page;
-    }
-
-    Eiw.page.Abstract = page;
-}());
-(function () {
-    'use strict';
-
-    var pageContainer;
-
-    /**
-     * The Widget class
-     *
-     * @constructor
-     */
-    pageContainer = function (application) {
-        /**
-         *
-         * @type {Eiw.Application}
-         */
+    router = function (application) {
         this.application = application;
-
-        /**
-         *
-         * @type {{Eiw.Widget.Abstract[]}}
-         */
-        this.pages = {};
-
-        this.currentPageId = null;
     };
 
-    pageContainer.prototype.bootstrap = function() {
-        $.each(this.pages, function(index, page){
-            page.bootstrap();
-            page.onPostBootstrap();
-            page.widgets.bootstrap();
+    // Extend the Indicator Prototype
+    //$.extend(application.prototype, new Eiw.Widget.());
+
+    router.prototype.bootstrap = function() {
+        $.address.autoUpdate(false);
+    };
+
+    router.prototype.bindApplicationToUrl = function(application)
+    {
+        var self = this;
+        $.address.externalChange(function(event) {
+            self.handleUrlChange(false);
         });
-    };
 
-    /**
-     * Get a widget by it id
-     *
-     * @param id
-     * @returns Eiw.Widget.Abstract
-     */
-    pageContainer.prototype.get = function(id) {
-        var page = null;
-        $.each(this.pages, function(index, value){
-            if(value.getId() == id) {
-                page = value;
+        $.address.internalChange(function(event) {
+            self.handleUrlChange(true);
+        });
+    }
+
+    router.prototype.handleUrlChange = function(internal) {
+        if(internal === true) {
+            this.log('Address changing by internal action');
+        } else {
+            this.log('Address changing by external action');
+        }
+        var state = this.getPath();
+        this.log('State :' + state);
+        this.log('Parameters:' + $.address.parameterNames().join(','));
+
+        if(state != undefined) {
+            var page  = this.getPageMatchingPath(state);
+            if(page != null) {
+                this.log('Page matching: ' + page.getId());
+                this.getApp().pages.setCurrentPage(page.getId());
+            } else {
+                this.log('No page are matching the current state:' + state);
+                alert('404, fail, bouuu');
+            }
+        } else {
+            this.log('No path in the url, default page will be loaded');
+        }
+        if(this.getApp().isLoaded()) {
+            this.getApp().pages.getCurrentPage().load();
+        } else {
+            this.getApp().load();
+        }
+    }
+
+    router.prototype.getPath = function() {
+        return $.address.state() || window.location.pathname.slice(0, -1);
+    }
+
+    router.prototype.getPageMatchingPath = function(path) {
+        var pageMatching;
+
+        $.each(this.getApp().pages.getAll(), function(index, page) {
+            var route = page.getRoute();
+            if(new RegExp(route).test(path)) {
+                pageMatching = page;
             }
         });
-        if(page != null) {
-            return page;
-        }
-        throw 'page not found';
-    };
 
-    pageContainer.prototype.getAll = function() {
-        return this.pages;
+        return pageMatching;
     }
-
-    pageContainer.prototype.add = function(page) {
-        if(this.currentPageId == null) {
-            this.currentPageId = page.getId();
-        }
-        page.setApplication(this.getApplication());
-        this.pages[page.getId()] = page;
-        return this;
-    }
-
     /**
-     * Return the current active page
-     * If there is no active page, return the first one loaded
      *
-     * @returns {Eiw.page.Abstract}
+     * @param path
+     * @return {Eiw.router}
      */
-    pageContainer.prototype.getCurrentPage = function() {
-        if(this.currentPageId == null) {
-            throw 'No page loaded in the application';
-        }
-        return this.pages[this.currentPageId];
-    };
-
-    /**
-     * Return the current active page
-     * If there is no active page, return the first one loaded
-     */
-    pageContainer.prototype.setCurrentPage = function(pageId) {
-        this.currentPageId = pageId;
+    router.prototype.setPath = function(path) {
+        $.address.state(path);
+        this.savePageState();
         return this;
-    };
+    }
+
+    router.prototype.savePageState = function() {
+        $.address.update();
+    }
 
     /**
      *
      * @returns {Eiw.Application}
      */
-    pageContainer.prototype.getApplication = function() {
+    router.prototype.getApp = function() {
         return this.application;
     }
 
-    Eiw.page.container = pageContainer;
-}());
-(function () {
-    'use strict';
+    router.prototype.log = function(message) {
+        this.getApp().log('#router: ' + message);
+    }
 
-    var widget;
-
-    /**
-     * @class
-     * @classdesc A bootstrap modal
-     */
-    widget = function (template) {
-        this.id          = 'bootstrap-modal';
-        this.initTemplateManager();
-        this.templates.add(template);
-    };
-
-    $.extend(true, widget.prototype, new Eiw.Widget.Abstract());
-
-    widget.prototype.showModal = function() {
-        this.getJqueryNode().find('.modal').modal();
-    };
-
-    /**
-     * Return a html container to be inserted in a modal template
-     * A widget will be able to be inserted in it
-     *
-     * @param widgetId the id of the widget that will be inserted inside the container
-     * @returns {string}
-     */
-    widget.prototype.getNewWidgetContainer = function(widgetId) {
-        return '<div id="' + widgetId + '"></div>';
-    };
-
-    Eiw.Prefab.Widget.Bootstrap.Modal = widget;
+    Eiw.router = router;
 }());
 (function () {
     'use strict';
@@ -1112,76 +807,517 @@
 
     Eiw.Widget.container = widgetContainer;
 }());
-/**
- * Created by cold on 3/2/14.
- */
 (function () {
     'use strict';
 
-    var plugin;
+    var page;
 
     /**
-     * The Abstract Widget plugin class
+     * @class
+     * @classdesc The page class. The page is different from the widget by two things.
+     * @classdesc Only one page can be display at a time and the path of the URL is dedicated to the routing of pages
      *
+     * @abstract
      * @constructor
-     * @param application {Eiw.Application}
+     * @extends Eiw.Widget.Abstract
+     * @member {Eiw.Widget.container} widgets
      */
-    plugin = function (application) {
+    page = function () {
+        this.route = '';
+        this.widgets = null;
     };
 
-    // Extend the Indicator Prototype
-    //$.extend(application.prototype, new Eiw.Widget.());
-
-    plugin.prototype.bootstrap = function() {
-    };
-
-    Eiw.Widget.Plugin.Abstract = plugin;
-}());
-/**
- * Created by cold on 3/2/14.
- */
-(function () {
-    'use strict';
-
-    var plugin;
+    // Extend the Widget Prototype
+    $.extend(true, page.prototype, new Eiw.Widget.Abstract());
 
     /**
-     * The Bootstrap Modal Widget plugin class
+     * Initialize the application
      *
-     * @constructor
-     * @param application {Eiw.Application}
      */
-    plugin = function (application) {
-    };
-
-    // Extend the Indicator Prototype
-    //$.extend(application.prototype, new Eiw.Widget.());
-
-    plugin.prototype.bootstrap = function() {
+    page.prototype.bootstrap = function() {
+        this.widgets = new Eiw.Widget.container(this.getApp());
+        Eiw.Widget.Abstract.prototype.bootstrap.call(this);
     };
 
     /**
-     * @param {string} content
-     *
-     * @todo replace with a template
+     * Only one page can be display at a time
+     * @returns {string}
      */
-    plugin.prototype.render = function() {
-        var content = '';
-        content = '\
-        <div class="modal fade">\
-            <div class="modal-dialog modal-lg">\
-                <div class="modal-content">\
-                    <div class="modal-header">\
-                        <h3>Pick what you want !</h3>\
-                    </div>\
-                    <div class="modal-body">\
-                    ' + 'test' + '\
-                    </div>\
-                </div>\
-            </div>\
-        </div>';
-        return content;
+    page.prototype.getNodeId = function() {
+        return '#page-container';
+    };
+
+    page.prototype.isMatchingUrlPath = function() {
+        return true;
     }
 
-    Eiw.Widget.Plugin.Bootstrap.Modal = plugin;
+    /**
+     * Return the route of the page
+     *
+     * @return {string}
+     */
+    page.prototype.getRoute = function() {
+        return this.route;
+    }
+
+    page.prototype.getType = function() {
+        return Eiw.Widget.types.page;
+    }
+
+    Eiw.page.Abstract = page;
+}());
+(function () {
+    'use strict';
+
+    var pageContainer;
+
+    /**
+     * The Widget class
+     *
+     * @constructor
+     */
+    pageContainer = function (application) {
+        /**
+         *
+         * @type {Eiw.Application}
+         */
+        this.application = application;
+
+        /**
+         *
+         * @type {{Eiw.Widget.Abstract[]}}
+         */
+        this.pages = {};
+
+        this.currentPageId = null;
+    };
+
+    pageContainer.prototype.bootstrap = function() {
+        $.each(this.pages, function(index, page){
+            page.bootstrap();
+            page.onPostBootstrap();
+            page.widgets.bootstrap();
+        });
+    };
+
+    /**
+     * Get a widget by it id
+     *
+     * @param id
+     * @returns Eiw.Widget.Abstract
+     */
+    pageContainer.prototype.get = function(id) {
+        var page = null;
+        $.each(this.pages, function(index, value){
+            if(value.getId() == id) {
+                page = value;
+            }
+        });
+        if(page != null) {
+            return page;
+        }
+        throw 'page not found';
+    };
+
+    pageContainer.prototype.getAll = function() {
+        return this.pages;
+    }
+
+    pageContainer.prototype.add = function(page) {
+        if(this.currentPageId == null) {
+            this.currentPageId = page.getId();
+        }
+        page.setApplication(this.getApplication());
+        this.pages[page.getId()] = page;
+        return this;
+    }
+
+    /**
+     * Return the current active page
+     * If there is no active page, return the first one loaded
+     *
+     * @returns {Eiw.page.Abstract}
+     */
+    pageContainer.prototype.getCurrentPage = function() {
+        if(this.currentPageId == null) {
+            throw 'No page loaded in the application';
+        }
+        return this.pages[this.currentPageId];
+    };
+
+    /**
+     * Return the current active page
+     * If there is no active page, return the first one loaded
+     */
+    pageContainer.prototype.setCurrentPage = function(pageId) {
+        this.currentPageId = pageId;
+        return this;
+    };
+
+    /**
+     *
+     * @returns {Eiw.Application}
+     */
+    pageContainer.prototype.getApplication = function() {
+        return this.application;
+    }
+
+    Eiw.page.container = pageContainer;
+}());
+(function () {
+    'use strict';
+
+    var application;
+
+    /**
+     * @class
+     * @classdesc The Application class
+     * @abstract
+     * @constructor
+     *
+     * @extends Eiw.Widget.Abstract
+     * @member {Eiw.logger} logger
+     * @member {Eiw.page.container} pages
+     * @member {Eiw.Widget.container} widgets
+     * @member {Eiw.router} router
+     */
+    application = function () {
+        /**
+         * @instance
+         * @type {Eiw.router}
+         */
+        this.router  = null;
+        this.widgets = null;
+        this.pages   = null;
+        this.logger  = null;
+        this.requestManager = null;
+    };
+
+    // Extend the Widget Prototype
+    $.extend(true, application.prototype, new Eiw.Widget.Abstract());
+
+    /**
+     * Initialize the application
+     *
+     */
+    application.prototype.bootstrap = function() {
+        this.application = this;
+
+        this.logger = new Eiw.logger();
+        this.logger.log('Application boostraping');
+
+        this.requestManager = new Eiw.Application.requestManager();
+        this.requestManager.bootstrap();
+
+        this.router = new Eiw.router(this);
+        this.router.bootstrap();
+
+        this.pages = new Eiw.page.container(this);
+
+        this.widgets = new Eiw.Widget.container(this);
+        Eiw.Widget.Abstract.prototype.bootstrap.call(this);
+        this.router.bindApplicationToUrl(this);
+        this.onPostBootstrap();
+    };
+
+    /**
+     *
+     * @param {Eiw.Application.request} request
+     * @param {function} callback
+     */
+    application.prototype.requestServer = function(request) {
+        this.requestManager.requestServer(request);
+    }
+
+    /**
+     * Start the application
+     */
+    application.prototype.start = function() {
+        this.bootstrap();
+        this.pages.bootstrap();
+        this.widgets.bootstrap();
+    };
+
+    /**
+     * @override
+     * @returns {string}
+     */
+    application.prototype.getNodeId = function() {
+        return '#' + this.getId() + '-app';
+    }
+
+    application.prototype.log = function(message) {
+        this.logger.log(message);
+    }
+
+    application.prototype.getRouter = function() {
+        return this.router;
+    }
+
+    application.prototype.getType = function() {
+        return Eiw.Widget.types.application;
+    }
+
+    /**
+     * This can be overloaded to do things after the bootstrap of the application
+     * @abstract
+     */
+    application.prototype.onPostBootstrap = function() {};
+    /**
+     * This can be overloaded to do things after the load of the application
+     * @abstract
+     */
+    application.prototype.onPostLoad = function() {};
+
+    Eiw.Application.Abstract = application;
+}());
+(function () {
+    'use strict';
+
+    var cache;
+
+    /**
+     * @class
+     * @classdesc The Application class
+     * @constructor
+     */
+    cache = function () {
+
+    };
+
+    /**
+     * Initialize the application
+     *
+     */
+    cache.prototype.bootstrap = function() {
+    };
+
+    /**
+     *
+     * @param {Eiw.Application.response} answer
+     * @returns {Eiw.Application.cache}
+     */
+    cache.prototype.store = function(answer) {
+        return this;
+    }
+
+    /**
+     * Test if a request is currently available in the cache
+     *
+     * @param {Eiw.Application.request} request
+     * @returns {boolean}
+     */
+    cache.prototype.test = function(request) {
+        return false;
+    }
+
+    cache.prototype.getRequestAnswer = function() {
+        return new Eiw.Application.response('test content');
+    }
+
+    Eiw.Application.cache = cache;
+}());
+(function () {
+    'use strict';
+
+    var promise;
+
+    /**
+     * @class
+     * @classdesc The Request class
+     * @constructor
+     */
+    promise = function () {
+        this.successCallback = null;
+        this.failCallback = null;
+    };
+
+    /**
+     * Call the success callback
+     */
+    promise.prototype.callSuccess = function() {
+        if(this.successCallback !== null) {
+            this.successCallback()
+        }
+        return this;
+    }
+
+    /**
+     * Set the success callback, it will be called when the promise will have been set resolved
+     */
+    promise.prototype.success = function(callback) {
+        return this.successCallback = callback;
+    }
+
+    /**
+     * Call the fail callback
+     */
+    promise.prototype.callFail = function() {
+        if(this.failCallback !== null) {
+            this.failCallback()
+        }
+        return this;
+    }
+
+    /**
+     * Set the fail callback, it will be called when the promise will have been set resolved
+     */
+    promise.prototype.fail = function(callback) {
+        return this.failCallback = callback;
+    }
+
+    Eiw.Application.Promise = promise;
+}());
+(function () {
+    'use strict';
+
+    var request;
+
+    /**
+     * @class
+     * @classdesc The Request class
+     * @constructor
+     */
+    request = function (url, success, fail) {
+        this.url = url;
+
+        this.response = null;
+
+        this.successCallback = null;
+        if(success !== undefined) {
+            this.successCallback = success;
+        }
+        this.failCallback    = null;
+        if(fail !== undefined) {
+            this.failCallback = fail;
+        }
+    };
+
+    /**
+     * Initialize the application
+     *
+     */
+    request.prototype.bootstrap = function() {
+
+    };
+
+    request.prototype.isCachable = function() {
+        return true;
+    };
+
+    request.prototype.getUrl = function() {
+        return this.url;
+    }
+
+    request.prototype.getParameters = function() {
+        return {};
+    }
+
+    request.prototype.setAnswer = function(answer) {
+        this.response = answer;
+        return this;
+    }
+
+    request.prototype.getAnswer = function() {
+        if(this.response == null) {
+            throw 'No answer have be bound to this request';
+        }
+        return this.response;
+    }
+
+    /**
+     * Return the success callback of the request
+     * @returns {null|function}
+     */
+    request.prototype.getSuccessCallback = function() {
+        return this.successCallback;
+    }
+
+    request.prototype.getFailCallback = function() {
+        return this.failCallback;
+    }
+
+
+    Eiw.Application.request = request;
+}());
+(function () {
+    'use strict';
+
+    var requestManager;
+
+    /**
+     * @class
+     * @classdesc The Application class
+     * @abstract
+     * @constructor
+     *
+     * @property {Eiw.Application.cache} cache
+     */
+    requestManager = function () {
+        this.cache = null;
+    };
+
+    /**
+     * Initialize the application
+     *
+     */
+    requestManager.prototype.bootstrap = function() {
+        this.cache = new Eiw.Application.cache();
+    };
+
+    /**
+     *
+     * @param {Eiw.Application.request} request
+     */
+    requestManager.prototype.requestServer = function(request) {
+        var self = this;
+        if(this.cache.test(request)) {
+            var answer = this.cache.getRequestAnswer(request);
+            request.setAnswer(answer);
+            request.getSuccessCallback()(answer);
+        } else {
+            $.getJSON(request.getUrl(),
+                  request.getParameters(),
+                  function(answer) {
+                      var answer = new Eiw.Application.response(answer);
+                      request.setAnswer(answer);
+                      if(request.isCachable()) {
+                          self.cache.store(answer);
+                      }
+                      request.getSuccessCallback()(answer);
+                  },
+                  request.getFailCallback());
+        }
+    };
+
+    Eiw.Application.requestManager = requestManager;
+}());
+(function () {
+    'use strict';
+
+    var answer;
+
+    /**
+     * @class
+     * @classdesc The Application class
+     * @constructor
+     */
+    answer = function (content, request) {
+        this.content = content;
+        this.request = request;
+    };
+
+    /**
+     * Initialize the application
+     *
+     */
+    answer.prototype.bootstrap = function() {
+
+    };
+
+    answer.prototype.getContent = function() {
+        return this.content;
+    }
+
+    Eiw.Application.response = answer;
 }());
