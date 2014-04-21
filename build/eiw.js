@@ -110,7 +110,6 @@ Eiw = {
      * @constructor
      */
     logger = function () {
-        this.test = 1;
     };
 
     // Extend the Indicator Prototype
@@ -121,6 +120,7 @@ Eiw = {
 
     logger.prototype.log = function(message) {
         console.log(message);
+        return this;
     }
 
     Eiw.logger = logger;
@@ -196,12 +196,16 @@ Eiw = {
         }
     }
 
+    /**
+     *
+     * @returns {*|string}
+     */
     router.prototype.getPath = function() {
         return $.address.state() || window.location.pathname.slice(0, -1);
     }
 
     router.prototype.getPageMatchingPath = function(path) {
-        var pageMatching;
+        var pageMatching = null;
 
         $.each(this.getApp().pages.getAll(), function(index, page) {
             var route = page.getRoute();
@@ -225,6 +229,7 @@ Eiw = {
 
     router.prototype.savePageState = function() {
         $.address.update();
+        return this;
     }
 
     /**

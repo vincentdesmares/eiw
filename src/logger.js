@@ -12,17 +12,18 @@
      * @constructor
      */
     logger = function () {
-        this.test = 1;
-    };
 
-    // Extend the Indicator Prototype
-    //$.extend(application.prototype, new Eiw.Widget.());
+    };
 
     logger.prototype.bootstrap = function() {
     };
 
     logger.prototype.log = function(message) {
+        if(typeof(window.console) !== 'Object') {
+            return this;
+        }
         console.log(message);
+        return this;
     }
 
     Eiw.logger = logger;

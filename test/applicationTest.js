@@ -1,6 +1,5 @@
 module("Application Test Suite", {
     setup: function() {
-        var a = jasmine;
         var f = jasmine.getFixtures();
         var path = 'test/fixtures';
         if (typeof window.__karma__ !== 'undefined') {
@@ -15,7 +14,8 @@ module("Application Test Suite", {
         f.clearCache();
     }
 });
-
 test('Simple application test', function() {
     ok($('#app-test1').length);
+    var app = new Test1.application();
+    app.start();
 });

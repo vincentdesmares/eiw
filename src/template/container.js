@@ -16,12 +16,7 @@
         this.currentTemplateId = null;
     };
 
-    // Extend the Indicator Prototype
-    //$.extend(application.prototype, new Eiw.Widget.());
-
     templateContainer.prototype.bootstrap = function() {
-
-
     };
 
     /**
@@ -55,6 +50,13 @@
             throw 'No template loaded for this object';
         }
         return this.templates[this.currentTemplateId];
+    };
+
+    /**
+     * Return true if the container hold at least a template
+     */
+    templateContainer.prototype.isEmpty = function() {
+        return $.isEmptyObject(this.templates);
     };
 
     Eiw.template.container = templateContainer;

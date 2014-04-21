@@ -18,9 +18,22 @@ module.exports = function (config) {
             // dependencies
             'bower_components/jquery/dist/jquery.min.js',
             'bower_components/jasmine-jquery/lib/jasmine-jquery.js',
+            'bower_components/jquery-address/src/jquery.address.js',
             // Sources
-            'build/eiw.js',
-            // Tests
+            // The build file is NOT used because it makes the errors
+            // too difficult to locate
+            'src/main.js',
+            'src/logger.js',
+            'src/router.js',
+            'src/template/*.js',
+            'src/widget/*.js',
+            'src/page/*.js',
+            'src/application/*.js',
+            'src/prefab/*.js',
+            // Tests files
+            // - Tests applications
+            'test/fixtures/application/*.js',
+            // - Tests suites
             'test/*.js',
             // fixtures
             {pattern: 'test/**/**/*.html', watched: true, served: true, included: false},
@@ -67,7 +80,7 @@ module.exports = function (config) {
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-        browsers: ['Chrome'],
+        browsers: ['Chrome', 'IE'],
 
 
         // Continuous Integration mode

@@ -134,24 +134,40 @@
     /**
      * Loading data and template of the widget
      * @todo add promise to templates
+     * @todo remove duplicated code
      */
     widget.prototype.load = function() {
         this.onPreLoad();
-        var template = this.templates.getCurrentTemplate();
         var promise = new Eiw.Application.Promise();
         var self = this;
-        template.load(function() {
-            if(self.hasApi()) {
-                var request = self.getNewRequest(promise);
-                self.getApp().requestServer(request);
+        //if there is a template, load it then fill it
+        if(!this.templates.isEmpty()) {
+            var template = this.templates.getCurrentTemplate();
+            template.load(function() {
+                if(self.hasApi()) {
+                    var request = self.getNewRequest(promise);
+                    self.getApp().requestServer(request);
+                } else {
+                    self.onPreRender();
+                    self.render(function(){
+                        self.loaded = true;
+                        promise.callSuccess();
+                    });
+                }
+            });
+        //if there is no template, just try to render
+        } else {
+            if(this.hasApi()) {
+                var request = this.getNewRequest(promise);
+                this.getApp().requestServer(request);
             } else {
-                self.onPreRender();
-                self.render(function(){
+                this.onPreRender();
+                this.render(function(){
                     self.loaded = true;
                     promise.callSuccess();
                 });
             }
-        });
+        }
         return promise;
     }
 
@@ -234,15 +250,20 @@
      */
     widget.prototype.render = function(callback) {
         this.log('Rendering');
-        if(this.replaceNode === true) {
-            this.getJqueryNode().replaceWith(this.templates.getCurrentTemplate().getHtml(this));
+        if(this.templates.isEmpty()) {
+            this.log('Skipping default rendering process, no template loaded.');
         } else {
-            this.getJqueryNode().html(this.templates.getCurrentTemplate().getHtml(this));
+            if(this.replaceNode === true) {
+                this.getJqueryNode().replaceWith(this.templates.getCurrentTemplate().getHtml(this));
+            } else {
+                this.getJqueryNode().html(this.templates.getCurrentTemplate().getHtml(this));
+            }
         }
 
         if(this.onPostRender() === false) {
             return;
         }
+
         if(callback != undefined) {
             callback();
         }

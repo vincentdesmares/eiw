@@ -22,9 +22,6 @@
         this.widgets = {};
     };
 
-    // Extend the Indicator Prototype
-    //$.extend(application.prototype, new Eiw.Widget.());
-
     widgetContainer.prototype.bootstrap = function() {
         $.each(this.widgets, function(index, widget){
             widget.bootstrap();
@@ -48,7 +45,7 @@
         if(widget != null) {
             return widget;
         }
-        throw 'widget not found';
+        throw 'Widget with id [' + id + '] not found.';
     };
 
     /**

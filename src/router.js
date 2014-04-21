@@ -57,7 +57,6 @@
                 this.getApp().pages.setCurrentPage(page.getId());
             } else {
                 this.log('No page are matching the current state:' + state);
-                alert('404, fail, bouuu');
             }
         } else {
             this.log('No path in the url, default page will be loaded');
@@ -69,12 +68,16 @@
         }
     }
 
+    /**
+     *
+     * @returns {*|string}
+     */
     router.prototype.getPath = function() {
         return $.address.state() || window.location.pathname.slice(0, -1);
     }
 
     router.prototype.getPageMatchingPath = function(path) {
-        var pageMatching;
+        var pageMatching = null;
 
         $.each(this.getApp().pages.getAll(), function(index, page) {
             var route = page.getRoute();
@@ -98,6 +101,7 @@
 
     router.prototype.savePageState = function() {
         $.address.update();
+        return this;
     }
 
     /**
